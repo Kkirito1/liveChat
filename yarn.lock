@@ -8342,7 +8342,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^8.0.1":
+"husky@npm:latest":
   version: 8.0.1
   resolution: "husky@npm:8.0.1"
   bin:
@@ -10300,7 +10300,7 @@ __metadata:
     eslint-plugin-prettier: ^4.0.0
     eslint-plugin-vue: ^9.0.1
     flyio: ^0.6.2
-    husky: ^8.0.1
+    husky: latest
     jest: ^25.4.0
     lint-staged: ^12.4.1
     mini-types: "*"

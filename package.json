@@ -54,7 +54,8 @@
     "lint:prettier": "prettier --write --loglevel warn \"src/**/*.{js,json,tsx,css,less,scss,vue,html,md}\"",
     "lint:stylelint": "stylelint --fix \"src/**/*.{vue,less,postcss,css,scss}\" --allow-empty-input --cache --cache-location node_modules/.cache/stylelint/",
     "pkg:sort": "npx sort-package-json",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "postinstall": "husky install"
   },
   "browserslist": [
     "Android >= 4.4",
@@ -109,7 +110,7 @@
     "eslint": "^8.16.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^9.0.1",
-    "husky": "^8.0.1",
+    "husky": "^8.0.0",
     "jest": "^25.4.0",
     "lint-staged": "^12.4.1",
     "mini-types": "*",
