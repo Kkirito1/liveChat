@@ -33,6 +33,7 @@
               'padding-bottom': status == 5 || status == 14 ? '131px' : '50px',
             }"
           >
+          <text @tap="playVoice">播放声音</text>
             <!-- 点击查看历史消息 -->
             <view class="im-loading">
               <text id="historyText" ref="historyText" class="loading-text" @click="rolling ? history() : ''">{{
@@ -110,7 +111,7 @@
       <!-- 底部 -->
       <view v-if="status != 5 && status != 14" ref="heightFace" class="footer" :class="faceShow ? 'boxFaceShow' : ''">
         <view class="footer-left">
-          <view class="uni-textarea">
+          <view class="uni-textarea" v-show="!chatType">
             <textarea
               placeholder-style="color:#666;font-size:14px;"
               placeholder="请输入发送内容"
@@ -122,10 +123,13 @@
               @keyboardheightchange="keyboardHeightChanged"
             />
           </view>
+          <view class="voice-box" v-show="chatType" @touchstart="handlerTouchstart" @touchend="handlerTouchend">
+            <text>按住说话</text>
+          </view>
           <view class="entry-right">
             <c-icon @click="faceContent" class="entry-icon" name="iconbiaoqing" size="22" color="#666"></c-icon>
             <c-icon @click="chooseImage" class="entry-icon" name="iconxiangce" size="22" color="#666"></c-icon>
-            <c-icon class="entry-icon" name="icontianjia" size="22" color="#666"></c-icon>
+            <c-icon @tap="chooseType" class="entry-icon" name="icontianjia" size="22" color="#666"></c-icon>
           </view>
         </view>
         <view class="footer-right" @click="sendTextMsg"> 发送 </view>
@@ -204,6 +208,11 @@ export default {
       sellerName: '', // 卖家名字
       buyorsale: 0, // 判断是否买家还是卖家 默认0页面不显示
       lastTime: '',
+      chatType: false, //false为文字聊天，true为语音聊天
+      timer: '',
+      recorderManager: '', //全局录音管理器
+      voicePath: '' ,//声音保存路径
+      innerAudioContext: ''
     }
   },
   mounted() {
@@ -216,6 +225,8 @@ export default {
     this.transactionMode = option.transactionType
     this.status = option.status
     this.tradeNum = option.tradeNum
+    this.recorderManager = uni.getRecorderManager();
+    this.innerAudioContext = uni.createInnerAudioContext();
   },
   onReady() {
     var that = this
@@ -273,6 +284,30 @@ export default {
         this.faceShow = false
         this.focusFlag = false
       }
+    },
+    chooseType(){
+      this.chatType = !this.chatType
+    },
+    handlerTouchstart(){
+      console.log('handlerTouchstart');
+      this.timer = setTimeout(()=>{
+        this.recorderManager.start();
+      },500)
+    },
+    handlerTouchend () {
+        console.log('handlerTouchend');
+          // 清除定时器
+           clearTimeout(this.timer)
+           this.recorderManager.onStop(res => {
+           			console.log('recorder stop' + JSON.stringify(res));
+           			this.voicePath = res.tempFilePath;
+           		});
+        },
+    playVoice(){
+      if (this.voicePath) {
+      				this.innerAudioContext.src = this.voicePath;
+      				this.innerAudioContext.play();
+      			}
     },
     relativeClick() {
       this.bottomHeight = '0px'
@@ -863,6 +898,15 @@ export default {
           color: #999;
         }
       }
+    }
+    
+    .voice-box{
+      width: 100%;
+      height: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
     }
 
     .footer-right {
