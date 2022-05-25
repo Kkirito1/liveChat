@@ -321,8 +321,11 @@ export default {
     },
     // 返回
     back() {
-      this.$util.router({
-        type: 'navigateBack',
+      // this.$util.router({
+      //   type: 'navigateBack',
+      // })
+      uni.navigateBack({
+        delta: 1
       })
     },
     // 选择发送图片
