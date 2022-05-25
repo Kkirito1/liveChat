@@ -3,6 +3,7 @@
     <image class="logo" src="/static/logo.png"></image>
     <view>
       <text class="title">{{ title }}</text>
+      <button @click="toLive">进入直播间</button>
     </view>
   </view>
 </template>
@@ -15,7 +16,13 @@ export default {
     }
   },
   onLoad() {},
-  methods: {},
+  methods: {
+    toLive() {
+      uni.navigateTo({
+        url: "/pages/instant-messaging/instant-messaging?transactionType='1'&status='3'&tradeMoney='123'&tradeNum=''000123456"
+      })
+    }
+  },
 }
 </script>
 

@@ -5,7 +5,17 @@
 			"style": {
 				"navigationBarTitleText": "uni-app"
 			}
-		}
+		},
+		{
+      "path": "pages/instant-messaging/instant-messaging",
+      "style": {
+        "app-plus": {
+          "titleNView": false,
+          "softinputMode": "adjustResize",
+          "softinputNavBar": "none"
+        }
+      }
+    }
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
