@@ -1,6 +1,6 @@
 <template>
   <view>
-    <view class="instant-messaging" style="height: 100%">
+    <view class="instant-messaging" style="height: 100%;">
       <uni-nav-bar status-bar="true" @clickLeft="back" fixed>
         <view style="color: red; font-size: 18px">直播中</view>
         <c-icon slot="left" name="iconfanhui" size="22" color="#000"></c-icon>
@@ -161,6 +161,8 @@
 import appData from '@/static/json/emojis/emojis.json'
 import SsxStringAvatar from '@/components/SsxStringAvatar/SsxStringAvatar.vue'
 import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
+const recorderManager = uni.getRecorderManager();
+const innerAudioContext = uni.createInnerAudioContext();
 export default {
   name: 'instantMessaging',
   components: {
@@ -210,23 +212,19 @@ export default {
       lastTime: '',
       chatType: false, //false为文字聊天，true为语音聊天
       timer: '',
-      recorderManager: '', //全局录音管理器
       voicePath: '' ,//声音保存路径
-      innerAudioContext: ''
     }
   },
   mounted() {
     console.log('直播间')
     this.ALIOSS_URLS = 'https://bandex-dev.oss-cn-shenzhen.aliyuncs.com/'
   },
-  onLoad: function (option) {
+  onLoad(option) {
     //option为object类型，会序列化上个页面传递的参数
     this.tradeMoney = option.tradeMoney
     this.transactionMode = option.transactionType
     this.status = option.status
     this.tradeNum = option.tradeNum
-    this.recorderManager = uni.getRecorderManager();
-    this.innerAudioContext = uni.createInnerAudioContext();
   },
   onReady() {
     var that = this
@@ -289,24 +287,26 @@ export default {
       this.chatType = !this.chatType
     },
     handlerTouchstart(){
-      console.log('handlerTouchstart');
+      console.log('handlerTouchstart',recorderManager);
       this.timer = setTimeout(()=>{
-        this.recorderManager.start();
+        recorderManager.start();
       },500)
     },
     handlerTouchend () {
-        console.log('handlerTouchend');
+        console.log('handlerTouchend',recorderManager);
           // 清除定时器
-           clearTimeout(this.timer)
-           this.recorderManager.onStop(res => {
-           			console.log('recorder stop' + JSON.stringify(res));
-           			this.voicePath = res.tempFilePath;
-           		});
+       recorderManager.stop()
+       recorderManager.onStop(res => {
+            console.log('recorder stop' + JSON.stringify(res));
+            this.voicePath = res.tempFilePath;
+          });
+          clearTimeout(this.timer)
         },
     playVoice(){
+      console.log('voicePath',this.voicePath);
       if (this.voicePath) {
-      				this.innerAudioContext.src = this.voicePath;
-      				this.innerAudioContext.play();
+      				innerAudioContext.src = this.voicePath;
+      				innerAudioContext.play();
       			}
     },
     relativeClick() {
@@ -850,7 +850,7 @@ export default {
   .footer {
     display: flex;
     position: fixed;
-    bottom: 0;
+    bottom: 20px;
     left: 0;
     align-items: flex-end;
     justify-content: flex-start;
