@@ -1,11 +1,10 @@
 <script>
-import io from '@hyoga/uni-socket.io'
 import { $messageSocket } from '@/utils/message-socket'
 
 export default {
   onLaunch: function () {
-    console.log('App Launch1111',$messageSocket)
-    if ($messageSocket && $messageSocket.connected) {
+    console.log('App Launch1111',$messageSocket, $messageSocket.connected == true)
+    if ($messageSocket) {
       console.log('App Launch2222')
       $messageSocket.emit(
         'login',

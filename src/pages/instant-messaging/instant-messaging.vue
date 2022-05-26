@@ -594,9 +594,9 @@ export default {
         .exec()
     },
     // IM消息推送
-    async sendGroup(msg) {
+    sendGroup(msg) {
       console.log('M消息推送========',msg)
-      // const res = await this.$api.Im.sendGroup({
+      // const res = this.$api.Im.sendGroup({
       //   agentName: this.agentName, // 系统代理
       //   conversationId: this.dialogueId, // 会话id
       //   fromClient: this.fromClient, // 发送人
@@ -617,7 +617,8 @@ export default {
       a.scrollTop = 540 //html
     },
     // 发送文本内容
-    async sendTextMsg() {
+    sendTextMsg() {
+      console.log('this.textMsg=====',this.textMsg)
       if (this.textMsg.trim().length <= 0) {
         return
       }
