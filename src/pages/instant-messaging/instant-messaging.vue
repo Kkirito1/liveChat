@@ -1,6 +1,6 @@
 <template>
   <view>
-    <view class="instant-messaging" style="height: 100%">
+    <view class="instant-messaging" style="height: 100%;">
       <uni-nav-bar status-bar="true" @clickLeft="back" fixed>
         <view style="color: red; font-size: 18px">直播中</view>
         <c-icon slot="left" name="iconfanhui" size="22" color="#000"></c-icon>
@@ -33,6 +33,7 @@
               'padding-bottom': status == 5 || status == 14 ? '131px' : '50px',
             }"
           >
+          <text @tap="playVoice">播放声音</text>
             <!-- 点击查看历史消息 -->
             <view class="im-loading">
               <text id="historyText" ref="historyText" class="loading-text" @click="rolling ? history() : ''">{{
@@ -110,7 +111,7 @@
       <!-- 底部 -->
       <view v-if="status != 5 && status != 14" ref="heightFace" class="footer" :class="faceShow ? 'boxFaceShow' : ''">
         <view class="footer-left">
-          <view class="uni-textarea">
+          <view class="uni-textarea" v-show="!chatType">
             <textarea
               placeholder-style="color:#666;font-size:14px;"
               placeholder="请输入发送内容"
@@ -122,10 +123,13 @@
               @keyboardheightchange="keyboardHeightChanged"
             />
           </view>
+          <view class="voice-box" v-show="chatType" @touchstart="handlerTouchstart" @touchmove="handlerTouchMove" @touchend="handlerTouchend">
+            <text>{{voiceText}}</text>
+          </view>
           <view class="entry-right">
             <c-icon @click="faceContent" class="entry-icon" name="iconbiaoqing" size="22" color="#666"></c-icon>
             <c-icon @click="chooseImage" class="entry-icon" name="iconxiangce" size="22" color="#666"></c-icon>
-            <c-icon class="entry-icon" name="icontianjia" size="22" color="#666"></c-icon>
+            <c-icon @tap="chooseType" class="entry-icon" name="icontianjia" size="22" color="#666"></c-icon>
           </view>
         </view>
         <view class="footer-right" @click="sendTextMsg"> 发送 </view>
@@ -149,6 +153,11 @@
         </ul>
       </view>
     </view>
+    <view class="mask" v-show="voiceText=='正在说话'">
+      <view :class="iscancleSend?'cancle-box curent':'cancle-box'">
+        <text>取消</text>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -157,6 +166,8 @@
 import appData from '@/static/json/emojis/emojis.json'
 import SsxStringAvatar from '@/components/SsxStringAvatar/SsxStringAvatar.vue'
 import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
+const recorderManager = uni.getRecorderManager();
+const innerAudioContext = uni.createInnerAudioContext();
 export default {
   name: 'instantMessaging',
   components: {
@@ -204,18 +215,27 @@ export default {
       sellerName: '', // 卖家名字
       buyorsale: 0, // 判断是否买家还是卖家 默认0页面不显示
       lastTime: '',
+      chatType: false, //false为文字聊天，true为语音聊天
+      timer: '',
+      voicePath: '' ,//声音保存路径
+      voiceText: '按住说话',
+      systemInfo: '',
+      startX: 0,  //初始触摸X坐标
+      startY: 0,  //初始触摸Y坐标
+      iscancleSend: false,  //是否取消发送语音
     }
   },
   mounted() {
     console.log('直播间')
     this.ALIOSS_URLS = 'https://bandex-dev.oss-cn-shenzhen.aliyuncs.com/'
   },
-  onLoad: function (option) {
+  onLoad(option) {
     //option为object类型，会序列化上个页面传递的参数
     this.tradeMoney = option.tradeMoney
     this.transactionMode = option.transactionType
     this.status = option.status
     this.tradeNum = option.tradeNum
+    this.systemInfo = uni.getSystemInfoSync()
   },
   onReady() {
     var that = this
@@ -255,6 +275,7 @@ export default {
     // }),
   },
   methods: {
+    
     getInfo() {
       uni
         .createSelectorQuery()
@@ -273,6 +294,60 @@ export default {
         this.faceShow = false
         this.focusFlag = false
       }
+    },
+    chooseType(){
+      this.chatType = !this.chatType
+    },
+    onTabItem() {
+      // #ifdef APP-PLUS
+      if (this.systemInfo.platform === 'ios') {
+        const UIImpactFeedbackGenerator = plus.ios.importClass('UIImpactFeedbackGenerator')
+        const impact = new UIImpactFeedbackGenerator()
+        impact.prepare()
+        impact.init(1)
+        impact.impactOccurred()
+      }
+      if (this.systemInfo.platform === 'android') {
+        uni.vibrateShort()
+      }
+      // #endif
+    },
+    handlerTouchstart(e){
+      console.log('handlerTouchstart');
+      this.onTabItem()
+      this.startX = e.touches[0].pageX
+      this.startY = e.touches[0].pageY
+      this.timer = setTimeout(()=>{
+        this.voiceText = '正在说话'
+        recorderManager.start();
+      },200)
+    },
+    handlerTouchMove(e){
+      if(this.startX - e.touches[0].pageX > 14 && this.startY - e.touches[0].pageY > 50){
+        this.iscancleSend = true
+        console.log('取消发送');
+      	} else {
+          this.iscancleSend = false
+          console.log('不取消发送');
+      	}
+    },
+    handlerTouchend () {
+        console.log('handlerTouchend',recorderManager);
+          // 清除定时器
+       recorderManager.stop()
+       this.voiceText = '按住说话'
+       recorderManager.onStop(res => {
+            console.log('recorder stop' + JSON.stringify(res));
+            this.voicePath = res.tempFilePath;
+          });
+          clearTimeout(this.timer)
+        },
+    playVoice(){
+      console.log('voicePath',this.voicePath);
+      if (this.voicePath) {
+      				innerAudioContext.src = this.voicePath;
+      				innerAudioContext.play();
+      			}
     },
     relativeClick() {
       this.bottomHeight = '0px'
@@ -592,7 +667,7 @@ export default {
   width: 100%;
   min-height: calc(100vh - var(--window-top));
   margin: 0;
-  padding: 0;
+  padding-bottom: var(--window-bottom);
 
   ::v-deep .uni-navbar--border {
     border: none;
@@ -821,7 +896,7 @@ export default {
     width: 100%;
     height: 50px;
 
-    // height: 50px;
+    // height: 50px;++
     background-color: #f7f9ff;
     color: #333;
     line-height: 50px;
@@ -865,6 +940,15 @@ export default {
           color: #999;
         }
       }
+    }
+    
+    .voice-box{
+      width: 100%;
+      height: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
     }
 
     .footer-right {
@@ -991,6 +1075,34 @@ export default {
 }
 
 // }
+
+.mask{
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  bottom: 50px;
+  left: 0;
+  z-index: 10070;
+  background-color: rgba(0, 0, 0, 0.5);
+  .cancle-box{
+    position: absolute;
+    left: 20px;
+    bottom: 100px;
+    width: 80px;
+    height: 80px;
+    font-size: 17px;
+    color: #ececec;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    background-color: #999;
+  }
+  .curent{
+    background-color: #f7f9ff;
+    color: #666;
+  }
+}
 </style>
 <style lang="scss" scoped>
 uni-page-body {

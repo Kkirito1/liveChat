@@ -7,6 +7,12 @@
 	"transformPx": false,
 	"app-plus": { /* 5+App特有相关 */
 		"usingComponents": true,
+    "safearea": {
+        "background": "#FFFFFF",  
+        "bottom": {  
+            "offset": "auto"  
+        }
+    },
 		"splashscreen": {
 			"alwaysShowBeforeRender": true,
 			"waiting": true,
