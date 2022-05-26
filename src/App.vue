@@ -1,11 +1,22 @@
 <script>
 import io from '@hyoga/uni-socket.io'
+import { $messageSocket } from '@/utils/message-socket'
 
 export default {
   onLaunch: function () {
-    console.log('App Launch1111')
-    // 后台的socket不行  所以先注释掉下面的代码，暂不连接socket
-    // const socket = io(`wss://192.168.100.7:8844}`, {
+    console.log('App Launch1111',$messageSocket)
+    if ($messageSocket && $messageSocket.connected) {
+      console.log('App Launch2222')
+      $messageSocket.emit(
+        'login',
+        JSON.stringify({
+          agent: 'bandex',
+          username: '483231',
+          source: 'app',
+        })
+      )
+    }
+    // const socket = io(`ws://192.168.100.7:8844}`, {
     //   path: '/message',
     //   transports: ['websocket', 'polling'],
     // })

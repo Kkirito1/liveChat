@@ -321,9 +321,6 @@ export default {
     },
     // 返回
     back() {
-      // this.$util.router({
-      //   type: 'navigateBack',
-      // })
       uni.navigateBack({
         delta: 1
       })
@@ -523,19 +520,20 @@ export default {
     },
     // IM消息推送
     async sendGroup(msg) {
-      const res = await this.$api.Im.sendGroup({
-        agentName: this.agentName, // 系统代理
-        conversationId: this.dialogueId, // 会话id
-        fromClient: this.fromClient, // 发送人
-        message: JSON.stringify(msg), // 消息主体
-      })
-      if (res.success) {
-        this.myNewsList = this.getChatData.get(this.dialogueId)
-        this.textMsg = ''
-        this.scrollToBottom()
-      } else {
-        this.$util.toast(this.$t(res.msg))
-      }
+      console.log('M消息推送========',msg)
+      // const res = await this.$api.Im.sendGroup({
+      //   agentName: this.agentName, // 系统代理
+      //   conversationId: this.dialogueId, // 会话id
+      //   fromClient: this.fromClient, // 发送人
+      //   message: JSON.stringify(msg), // 消息主体
+      // })
+      // if (res.success) {
+      //   this.myNewsList = this.getChatData.get(this.dialogueId)
+      //   this.textMsg = ''
+      //   this.scrollToBottom()
+      // } else {
+      //   this.$util.toast(this.$t(res.msg))
+      // }
     },
     scrollDs() {
       // var a = document.querySelector('#test')
@@ -557,6 +555,7 @@ export default {
         // message: encodeURI(this.textMsg.replace(/\n/g, '\\n')),
         message: encodeURIComponent(this.textMsg),
       }
+      console.log('myNews=====',myNews)
       this.sendGroup(myNews)
     },
     textareaFocus(e) {
