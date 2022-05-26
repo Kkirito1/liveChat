@@ -123,8 +123,8 @@
               @keyboardheightchange="keyboardHeightChanged"
             />
           </view>
-          <view class="voice-box" v-show="chatType" @touchstart="handlerTouchstart" @touchend="handlerTouchend">
-            <text>按住说话</text>
+          <view class="voice-box" v-show="chatType" @touchstart="handlerTouchstart" @touchmove="handlerTouchMove" @touchend="handlerTouchend">
+            <text>{{voiceText}}</text>
           </view>
           <view class="entry-right">
             <c-icon @click="faceContent" class="entry-icon" name="iconbiaoqing" size="22" color="#666"></c-icon>
@@ -151,6 +151,11 @@
             {{ item }}
           </li>
         </ul>
+      </view>
+    </view>
+    <view class="mask" v-show="voiceText=='正在说话'">
+      <view :class="iscancleSend?'cancle-box curent':'cancle-box'">
+        <text>取消</text>
       </view>
     </view>
   </view>
@@ -213,6 +218,11 @@ export default {
       chatType: false, //false为文字聊天，true为语音聊天
       timer: '',
       voicePath: '' ,//声音保存路径
+      voiceText: '按住说话',
+      systemInfo: '',
+      startX: 0,  //初始触摸X坐标
+      startY: 0,  //初始触摸Y坐标
+      iscancleSend: false,  //是否取消发送语音
     }
   },
   mounted() {
@@ -225,6 +235,7 @@ export default {
     this.transactionMode = option.transactionType
     this.status = option.status
     this.tradeNum = option.tradeNum
+    this.systemInfo = uni.getSystemInfoSync()
   },
   onReady() {
     var that = this
@@ -264,6 +275,7 @@ export default {
     // }),
   },
   methods: {
+    
     getInfo() {
       uni
         .createSelectorQuery()
@@ -286,16 +298,44 @@ export default {
     chooseType(){
       this.chatType = !this.chatType
     },
-    handlerTouchstart(){
-      console.log('handlerTouchstart',recorderManager);
+    onTabItem() {
+      // #ifdef APP-PLUS
+      if (this.systemInfo.platform === 'ios') {
+        const UIImpactFeedbackGenerator = plus.ios.importClass('UIImpactFeedbackGenerator')
+        const impact = new UIImpactFeedbackGenerator()
+        impact.prepare()
+        impact.init(1)
+        impact.impactOccurred()
+      }
+      if (this.systemInfo.platform === 'android') {
+        uni.vibrateShort()
+      }
+      // #endif
+    },
+    handlerTouchstart(e){
+      console.log('handlerTouchstart');
+      this.onTabItem()
+      this.startX = e.touches[0].pageX
+      this.startY = e.touches[0].pageY
       this.timer = setTimeout(()=>{
+        this.voiceText = '正在说话'
         recorderManager.start();
-      },500)
+      },200)
+    },
+    handlerTouchMove(e){
+      if(this.startX - e.touches[0].pageX > 14 && this.startY - e.touches[0].pageY > 50){
+        this.iscancleSend = true
+        console.log('取消发送');
+      	} else {
+          this.iscancleSend = false
+          console.log('不取消发送');
+      	}
     },
     handlerTouchend () {
         console.log('handlerTouchend',recorderManager);
           // 清除定时器
        recorderManager.stop()
+       this.voiceText = '按住说话'
        recorderManager.onStop(res => {
             console.log('recorder stop' + JSON.stringify(res));
             this.voicePath = res.tempFilePath;
@@ -628,7 +668,7 @@ export default {
   width: 100%;
   min-height: calc(100vh - var(--window-top));
   margin: 0;
-  padding: 0;
+  padding-bottom: var(--window-bottom);
 
   ::v-deep .uni-navbar--border {
     border: none;
@@ -850,14 +890,14 @@ export default {
   .footer {
     display: flex;
     position: fixed;
-    bottom: 20px;
+    bottom: 0;
     left: 0;
     align-items: flex-end;
     justify-content: flex-start;
     width: 100%;
     height: 50px;
 
-    // height: 50px;
+    // height: 50px;++
     background-color: #f7f9ff;
     color: #333;
     line-height: 50px;
@@ -1036,6 +1076,34 @@ export default {
 }
 
 // }
+
+.mask{
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  bottom: 50px;
+  left: 0;
+  z-index: 10070;
+  background-color: rgba(0, 0, 0, 0.5);
+  .cancle-box{
+    position: absolute;
+    left: 20px;
+    bottom: 100px;
+    width: 80px;
+    height: 80px;
+    font-size: 17px;
+    color: #ececec;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50px;
+    background-color: #999;
+  }
+  .curent{
+    background-color: #f7f9ff;
+    color: #666;
+  }
+}
 </style>
 <style lang="scss" scoped>
 uni-page-body {
