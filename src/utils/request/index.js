@@ -7,7 +7,7 @@ import createRequest from './request'
 
 // 基础请求对象，请求结果被包装
 export const baseRequest = createRequest({
-  baseUrl: '127.0.0.1:8080',
+  baseUrl: 'http://192.168.100.7:8080',
   header: {
     'Content-type': 'application/x-www-form-urlencoded',
   },
@@ -26,7 +26,7 @@ export const baseRequest = createRequest({
 
 // Im 请求结果对象，请求结果被包装
 export const imService = createRequest({
-  baseUrl: '127.0.0.1:8088',
+  baseUrl: 'http://192.168.100.7:8088',
   header: {
     'Content-type': 'application/x-www-form-urlencoded',
   },

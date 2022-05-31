@@ -162,6 +162,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 // import { mapGetters, mapState } from 'vuex'
 import appData from '@/static/json/emojis/emojis.json'
 import SsxStringAvatar from '@/components/SsxStringAvatar/SsxStringAvatar.vue'
@@ -223,6 +224,7 @@ export default {
       startX: 0,  //初始触摸X坐标
       startY: 0,  //初始触摸Y坐标
       iscancleSend: false,  //是否取消发送语音
+      roomId: '', // 房间号
     }
   },
   mounted() {
@@ -253,20 +255,20 @@ export default {
     // 消息列表
     myNewsList: {
       get() {
-        //     let dialogueId = this.dialogueId
-        //     let val = this.getChatData.get(dialogueId) || []
-        //     if (val.length > 0) {
-        //       // let lastSendTime = val[val.length - 1].created || ''
-        //       // if (this.lastTime !== lastSendTime) {
-        //       //   this.lastTime = lastSendTime
-        //       // }
-        //       // this.scrollToBottom()
-        //       let systemMsg = JSON.parse(val[val.length - 1].msgBody)
-        //       if ('tradeType' in systemMsg && val[val.length - 1].conversationId === dialogueId) {
-        //         this.orderDetails()
-        //       }
-        //     }
-        //     return this.getChatData.get(dialogueId) || []
+            // let dialogueId = this.roomId
+            // let val = this.getChatData.get(dialogueId) || []
+            // if (val.length > 0) {
+            //   // let lastSendTime = val[val.length - 1].created || ''
+            //   // if (this.lastTime !== lastSendTime) {
+            //   //   this.lastTime = lastSendTime
+            //   // }
+            //   // this.scrollToBottom()
+            //   let systemMsg = JSON.parse(val[val.length - 1].msgBody)
+            //   if ('tradeType' in systemMsg && val[val.length - 1].conversationId === dialogueId) {
+            //     // this.orderDetails()
+            //   }
+            // }
+            // return this.getChatData.get(dialogueId) || []
         return []
       },
     },
@@ -279,28 +281,50 @@ export default {
     // 创建房间
     createdRoom() {
       console.log('创建房间=====')
-      const res = this.$api.Im.createdRoom({
-        userId: '483231',
-      })
-      if (res.success) {
-        console.log('创建房间成功',res)
-      } else {
-        this.$util.toast(this.$t(res.msg))
+      let params = {
+        "userId": '483231'
       }
+      let headers={
+        "Content-Type":"application/x-www-form-urlencoded"  //设置一下请求头即可
+      }
+      uni.request({
+        url: `http://192.168.100.7:8080/live/createdRoom`,
+        method: 'POST',
+        header: headers,
+        data: params,
+        success: (data)=>{
+          console.log('创建房间成功', data)
+          this.roomId = data.data.obj.conversationId
+          this.joinRoom()
+        },
+        fail: (err)=>{
+          console.log('err',err)
+        }
+      }) 
     },
 
     // 加入房间
     joinRoom() {
       console.log('加入房间=====')
-      const res = this.$api.Im.joinRoom({
-        userId: '483231',
-        roomId: '123456'
-      })
-      if (res.success) {
-        console.log('加入房间成功',res)
-      } else {
-        this.$util.toast(this.$t(res.msg))
+      let params = {
+        "userId": '483231',
+        "roomId": this.roomId
       }
+      let headers={
+        "Content-Type":"application/x-www-form-urlencoded"  //设置一下请求头即可
+      }
+      uni.request({
+        url: `http://192.168.100.7:8080/live/joinRoom`,
+        method: 'POST',
+        header: headers,
+        data: params,
+        success: (res)=>{
+          console.log('加入房间成功', res)
+        },
+        fail: (err)=>{
+          console.log('err',err)
+        }
+      }) 
     },
     
     getInfo() {
@@ -623,19 +647,30 @@ export default {
     // IM消息推送
     sendGroup(msg) {
       console.log('M消息推送========',msg)
-      // const res = this.$api.Im.sendGroup({
-      //   agentName: this.agentName, // 系统代理
-      //   conversationId: this.dialogueId, // 会话id
-      //   fromClient: this.fromClient, // 发送人
-      //   message: JSON.stringify(msg), // 消息主体
-      // })
-      // if (res.success) {
-      //   this.myNewsList = this.getChatData.get(this.dialogueId)
-      //   this.textMsg = ''
-      //   this.scrollToBottom()
-      // } else {
-      //   this.$util.toast(this.$t(res.msg))
-      // }
+      let params = {
+        "agentName": 'rosetta',
+        "fromClient": '483231',
+        "conversationId": this.roomId,
+        "message": JSON.stringify(msg)
+      }
+      let headers={
+        "Content-Type":"application/x-www-form-urlencoded"  //设置一下请求头即可
+      }
+      uni.request({
+        url: `http://192.168.100.7:8088/message/send/group`,
+        method: 'POST',
+        header: headers,
+        data: params,
+        success: (res)=>{
+          console.log('消息推送成功', res)
+          // this.myNewsList = this.getChatData.get(this.roomId)
+          // this.textMsg = ''
+          // this.scrollToBottom()
+        },
+        fail: (err)=>{
+          console.log('err',err)
+        }
+      })
     },
     scrollDs() {
       // var a = document.querySelector('#test')

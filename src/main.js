@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import App from './App'
-import * as api from './apis'
+// import * as api from './apis'
 
 Vue.config.productionTip = false
-Vue.prototype.$api = api
+// Vue.prototype.$api = api
 
 App.mpType = 'app'
 
