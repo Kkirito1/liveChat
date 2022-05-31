@@ -82,7 +82,6 @@
     "@dcloudio/uni-stat": "^2.0.1-34720220422002",
     "@hyoga/uni-socket.io": "1.0.1",
     "@vue/shared": "^3.0.0",
-    "axios": "^0.27.2",
     "core-js": "^3.6.5",
     "flyio": "^0.6.2",
     "regenerator-runtime": "^0.12.1",
