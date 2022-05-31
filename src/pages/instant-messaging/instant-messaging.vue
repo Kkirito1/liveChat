@@ -228,6 +228,7 @@ export default {
   mounted() {
     console.log('直播间')
     this.ALIOSS_URLS = 'https://bandex-dev.oss-cn-shenzhen.aliyuncs.com/'
+    this.createdRoom()
   },
   onLoad(option) {
     //option为object类型，会序列化上个页面传递的参数
@@ -275,6 +276,32 @@ export default {
     // }),
   },
   methods: {
+    // 创建房间
+    createdRoom() {
+      console.log('创建房间=====')
+      const res = this.$api.Im.createdRoom({
+        userId: '483231',
+      })
+      if (res.success) {
+        console.log('创建房间成功',res)
+      } else {
+        this.$util.toast(this.$t(res.msg))
+      }
+    },
+
+    // 加入房间
+    joinRoom() {
+      console.log('加入房间=====')
+      const res = this.$api.Im.joinRoom({
+        userId: '483231',
+        roomId: '123456'
+      })
+      if (res.success) {
+        console.log('加入房间成功',res)
+      } else {
+        this.$util.toast(this.$t(res.msg))
+      }
+    },
     
     getInfo() {
       uni

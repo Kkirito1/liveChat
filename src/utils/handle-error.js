@@ -1,6 +1,6 @@
 import { toast } from './index'
 import { i18n } from '@/lang'
-import getEnv from '@/config'
+// import getEnv from '@/config'
 
 /**
  * @name Handle api request exception
@@ -32,15 +32,15 @@ function handleWebSocketException() {
 function handleApplicationException(e) {
   // toast('运行错误')
   console.error(e)
-  if (getEnv('IS_ENABLE_DEBUG_ERROR_MODAL')) {
-    uni.showModal({
-      title: '发生错误！',
-      content: e,
-      showCancel: true,
-      cancelText: '取消',
-      confirmText: '确认',
-    })
-  }
+  // if (getEnv('IS_ENABLE_DEBUG_ERROR_MODAL')) {
+  //   uni.showModal({
+  //     title: '发生错误！',
+  //     content: e,
+  //     showCancel: true,
+  //     cancelText: '取消',
+  //     confirmText: '确认',
+  //   })
+  // }
 }
 
 /**

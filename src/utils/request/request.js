@@ -2,12 +2,12 @@
  * 请求模块
  */
 
-import getEnv from '@/config'
-import { md5, guid, removeEmptyKey, router } from '@/utils'
+// import getEnv from '@/config'
+import { md5, guid, removeEmptyKey } from '@/utils'
 import { rsaEncrypted } from '@/utils/encrypt'
-import store from '@/store'
+// import store from '@/store'
 import Request from './core/request-class'
-import { i18n, getApiLang } from '@/lang'
+// import { i18n, getApiLang } from '@/lang'
 
 /**
  * 创建加密参数
@@ -15,14 +15,17 @@ import { i18n, getApiLang } from '@/lang'
  */
 export function createApiSign(signStrArr) {
   // 时间差值
-  const { TDOA = 0 } = store.state.appSessionStatus.appConfig
+  const API_SIGN_RSA_PUBLIC_KEY = `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC2IJqUPZLLRZ9qNWxpGGpjhtZV 6q1RugNT2YsaB9gpxavmV2p+g8uCDFhe/mBIgF0qpl+9y1n4eXClsbry2FzVTsFQ ZaRDyhG7yBgR+Uf1oJop1Aeci+jNPMOxWQwP6hjOTHABi8wJCA6t8Zm8yESq8BqY EstnvjSTyJF9cidkNwIDAQAB`
+  // const { TDOA = 0 } = store.state.appSessionStatus.appConfig
+  const TDOA = 0 
   const uuidStr = guid()
   const timestampStr = String(new Date().getTime() - TDOA)
 
   signStrArr.push(uuidStr)
   signStrArr.push(timestampStr)
   const sign = md5(signStrArr.sort().toString())
-  const nonce = rsaEncrypted(getEnv('API_SIGN_RSA_PUBLIC_KEY'), `${uuidStr},${timestampStr}`)
+  // const nonce = rsaEncrypted(getEnv('API_SIGN_RSA_PUBLIC_KEY'), `${uuidStr},${timestampStr}`)
+  const nonce = rsaEncrypted(API_SIGN_RSA_PUBLIC_KEY, `${uuidStr},${timestampStr}`)
   return {
     sign,
     nonce,
@@ -30,14 +33,17 @@ export function createApiSign(signStrArr) {
 }
 
 export function createPureSign() {
-  const { TDOA = 0 } = store.state.appSessionStatus.appConfig
+  const API_SIGN_RSA_PUBLIC_KEY = `MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC2IJqUPZLLRZ9qNWxpGGpjhtZV 6q1RugNT2YsaB9gpxavmV2p+g8uCDFhe/mBIgF0qpl+9y1n4eXClsbry2FzVTsFQ ZaRDyhG7yBgR+Uf1oJop1Aeci+jNPMOxWQwP6hjOTHABi8wJCA6t8Zm8yESq8BqY EstnvjSTyJF9cidkNwIDAQAB`
+  // const { TDOA = 0 } = store.state.appSessionStatus.appConfig
+  const TDOA = 0 
 
   const uuidStr = guid()
   const timestampStr = String(new Date().getTime() - TDOA)
   const keys = [uuidStr, timestampStr]
 
   const Sign = md5(keys.sort().toString())
-  const Nonce = rsaEncrypted(getEnv('API_SIGN_RSA_PUBLIC_KEY'), `${uuidStr},${timestampStr}`)
+  // const Nonce = rsaEncrypted(getEnv('API_SIGN_RSA_PUBLIC_KEY'), `${uuidStr},${timestampStr}`)
+  const Nonce = rsaEncrypted(API_SIGN_RSA_PUBLIC_KEY, `${uuidStr},${timestampStr}`)
 
   return {
     Sign,
@@ -66,7 +72,7 @@ export default function createRequest(options, packErr = true) {
   // 请求拦截器
   http.setReqInterceptor((config) => {
     const { method, params, data } = config
-    const { token } = store.state
+    const { token } = '' // store.state
 
     // token
     if (token) {
@@ -83,7 +89,7 @@ export default function createRequest(options, packErr = true) {
         _t: Date.parse(new Date()) / 1000,
       }
       if (!config.data['langCode']) {
-        config.data['langCode'] = getApiLang()
+        config.data['langCode'] = 'zh_CN' // getApiLang()
       }
       // 删除 params
       delete config.params
@@ -93,7 +99,7 @@ export default function createRequest(options, packErr = true) {
       if (isShowLoading) {
         !isLoading && (isLoading = true)
         uni.showLoading({
-          title: i18n.t('app_loading'),
+          title: '加载中',
           mask: true,
         })
       }
@@ -111,11 +117,11 @@ export default function createRequest(options, packErr = true) {
     if (['post', 'POST'].includes(method)) {
       if (data) {
         if (!config.data['langCode']) {
-          config.data['langCode'] = getApiLang()
+          config.data['langCode'] = 'zh_CN' // getApiLang()
         }
       } else {
         config.data = {
-          langCode: getApiLang(),
+          langCode: 'zh_CN' // getApiLang(),
         }
       }
 
@@ -124,7 +130,7 @@ export default function createRequest(options, packErr = true) {
       if (isShowLoading) {
         !isLoading && (isLoading = true)
         uni.showLoading({
-          title: i18n.t('app_loading'),
+          title: '加载中',
           mask: true,
         })
       }
@@ -191,46 +197,47 @@ export default function createRequest(options, packErr = true) {
         const res = await http.request(config)
         // 401处理
         if (res.code === '401') {
+          console.log('401啦---------')
           // Get new token
-          const newRes = await getNewToken({
-            refreshToken: store.state.refreshToken,
-          })
+          // const newRes = await getNewToken({
+          //   refreshToken: store.state.refreshToken,
+          // })
 
-          if (newRes.success) {
-            // Update vuex token
-            store.commit('UPDATE_TOKEN', {
-              token: newRes.obj.token,
-            })
-            // Update vuex refresh token
-            store.commit('UPDATE_REFRESH_TOKEN', {
-              refreshToken: newRes.obj.refreshToken,
-            })
-            // Re request
-            return await http.request(config)
-          } else {
-            // 退出登录
-            store.commit('USER_LOGIN_OUT')
-            router({
-              type: 'switchTab',
-              url: '/pages/user/user',
-            })
-            setTimeout(() => {
-              // 去登录界面
-              router({
-                url: '/pages/user/auth/login/login',
-              })
-            }, 100)
+          // if (newRes.success) {
+          //   // Update vuex token
+          //   store.commit('UPDATE_TOKEN', {
+          //     token: newRes.obj.token,
+          //   })
+          //   // Update vuex refresh token
+          //   store.commit('UPDATE_REFRESH_TOKEN', {
+          //     refreshToken: newRes.obj.refreshToken,
+          //   })
+          //   // Re request
+          //   return await http.request(config)
+          // } else {
+          //   // 退出登录
+          //   // store.commit('USER_LOGIN_OUT')
+          //   router({
+          //     type: 'switchTab',
+          //     url: '/pages/index/index',
+          //   })
+          //   setTimeout(() => {
+          //     // 去登录界面
+          //     router({
+          //       url: '/pages/user/auth/login/login',
+          //     })
+          //   }, 100)
 
-            /**
-             * @name 封装的错误对象
-             */
-            return Promise.resolve({
-              success: false,
-              msg: 'notice_relogin',
-              obj: newRes,
-              code: 401,
-            })
-          }
+          //   /**
+          //    * @name 封装的错误对象
+          //    */
+          //   return Promise.resolve({
+          //     success: false,
+          //     msg: 'notice_relogin',
+          //     obj: newRes,
+          //     code: 401,
+          //   })
+          // }
         } else {
           return Promise.resolve(res)
         }

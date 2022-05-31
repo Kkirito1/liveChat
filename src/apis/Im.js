@@ -1,6 +1,31 @@
-import { imService } from '@/utils/request/index'
+import { imService, baseRequest } from '@/utils/request/index'
 
 export default {
+  // 主播创建房间
+  createdRoom: (params) => {
+    const { userId } = params
+    return baseRequest({
+      url: '/live/createdRoom',
+      method: 'post',
+      data: {
+        userId
+      },
+    })
+  },
+
+  // 用户加入房间
+  joinRoom: (params) => {
+    const { userId, roomId } = params
+    return baseRequest({
+      url: '/live/joinRoom',
+      method: 'post',
+      data: {
+        userId,
+        roomId
+      },
+    })
+  },
+
   // IM消息分布式地址
   getImSocketUrl() {
     return imService({
