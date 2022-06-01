@@ -162,7 +162,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 // import { mapGetters, mapState } from 'vuex'
 import appData from '@/static/json/emojis/emojis.json'
 import SsxStringAvatar from '@/components/SsxStringAvatar/SsxStringAvatar.vue'

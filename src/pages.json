@@ -16,7 +16,16 @@
         }
       }
     }
-	],
+	    ,{
+            "path" : "pages/user-message/user-message",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
