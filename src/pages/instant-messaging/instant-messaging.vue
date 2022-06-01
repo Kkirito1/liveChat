@@ -12,8 +12,8 @@
         @click="relativeClick"
         @touchmove="relativeTouchMove"
       >
-        <view class="status-text" style="color: #333">交易金额</view>
-        <view class="status-text" style="color: #3f81ff">{{ tradeMoney }}CNY</view>
+        <view class="status-text" style="color: #333">昵称及用户ID</view>
+        <view class="status-text" style="color: #3f81ff">{{ tradeMoney }}</view>
         <scroll-view
           id="scroll_xy"
           :style="{ height: scrollYHeight }"
@@ -162,7 +162,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 // import { mapGetters, mapState } from 'vuex'
 import appData from '@/static/json/emojis/emojis.json'
 import SsxStringAvatar from '@/components/SsxStringAvatar/SsxStringAvatar.vue'
