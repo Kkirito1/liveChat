@@ -6,7 +6,7 @@ import io from '@hyoga/uni-socket.io'
 /**
  * @name Import Files
  */
-// import store from '@/store'
+import store from '@/store'
 // import { handleApiRequestException } from '@/utils/handle-error'
 // import { Account } from '@/apis'
 // import getEnv from '@/config'
@@ -42,7 +42,7 @@ export function CreateMessageSocket() {
     //     const res = await Account.getUser()
     //     if (res.success) {
     //       socket.emit(
-    //         'login',
+    //         'login',uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu 
     //         JSON.stringify({
     //           agent: 'bandex',
     //           username: '483231',
@@ -91,7 +91,7 @@ export function CreateMessageSocket() {
   socket.on('CHAT_MESSAGE_EVENT', (data) => {
     console.log('CHAT_MESSAGE_EVENT', data.msgBody)
     // 存入vuex
-    // store.commit('CHAT', data)
+    store.commit('CHAT', data)
   })
 
   // 心跳检查

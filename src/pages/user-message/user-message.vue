@@ -156,10 +156,10 @@
 <script>
   import appData from '@/static/json/emojis/emojis.json'
   import SsxStringAvatar from '@/components/SsxStringAvatar/SsxStringAvatar.vue'
-  import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
+  // import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
 	export default {
     components: {
-      uniNavBar,
+      // uniNavBar,
       SsxStringAvatar,
     },
 		data() {
@@ -199,9 +199,44 @@
 				sellerName: '', // 卖家名字
 				buyorsale: 0, // 判断是否买家还是卖家 默认0页面不显示
 				lastTime: '',
-        myNewsList: []
+        myNewsList: [],
+        roomId:'',
+        userId: ''
 			};
-		}
+		},
+    mounted() {
+      this.joinRoom()
+    },
+    onLoad(option) {
+      console.log(option);
+      this.roomId = option.roomId
+      this.userId = option.customerId
+    },
+    methods:{
+      // 加入房间
+      joinRoom() {
+        console.log('加入房间=====')
+        let params = {
+          "userId": this.userId,
+          "roomId": this.roomId
+        }
+        let headers={
+          "Content-Type":"application/x-www-form-urlencoded"  //设置一下请求头即可
+        }
+        uni.request({
+          url: `http://192.168.100.7:8080/live/joinRoom`,
+          method: 'POST',
+          header: headers,
+          data: params,
+          success: (res)=>{
+            console.log('加入房间成功', res)
+          },
+          fail: (err)=>{
+            console.log('err',err)
+          }
+        }) 
+      },
+    }
 	}
 </script>
 

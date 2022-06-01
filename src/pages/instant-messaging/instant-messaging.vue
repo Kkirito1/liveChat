@@ -162,7 +162,7 @@
 </template>
 
 <script>
-// import { mapGetters, mapState } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import appData from '@/static/json/emojis/emojis.json'
 import SsxStringAvatar from '@/components/SsxStringAvatar/SsxStringAvatar.vue'
 import uniNavBar from '@/components/uni-nav-bar/uni-nav-bar.vue'
@@ -254,27 +254,26 @@ export default {
     // 消息列表
     myNewsList: {
       get() {
-            // let dialogueId = this.roomId
-            // let val = this.getChatData.get(dialogueId) || []
-            // if (val.length > 0) {
-            //   // let lastSendTime = val[val.length - 1].created || ''
-            //   // if (this.lastTime !== lastSendTime) {
-            //   //   this.lastTime = lastSendTime
-            //   // }
-            //   // this.scrollToBottom()
-            //   let systemMsg = JSON.parse(val[val.length - 1].msgBody)
-            //   if ('tradeType' in systemMsg && val[val.length - 1].conversationId === dialogueId) {
-            //     // this.orderDetails()
-            //   }
-            // }
-            // return this.getChatData.get(dialogueId) || []
-        return []
+            let dialogueId = this.roomId
+            let val = this.getChatData.get(dialogueId) || []
+            if (val.length > 0) {
+              // let lastSendTime = val[val.length - 1].created || ''
+              // if (this.lastTime !== lastSendTime) {
+              //   this.lastTime = lastSendTime
+              // }
+              // this.scrollToBottom()
+              let systemMsg = JSON.parse(val[val.length - 1].msgBody)
+              if ('tradeType' in systemMsg && val[val.length - 1].conversationId === dialogueId) {
+                // this.orderDetails()
+              }
+            }
+            return this.getChatData.get(dialogueId) || []
+        // return []
       },
     },
-    // ...mapGetters({
-    //   getChatData: 'getChat',
-    //   themeVal: 'themeVal',
-    // }),
+    ...mapGetters({
+      getChatData: 'getChat',
+    }),
   },
   methods: {
     // 创建房间
@@ -662,9 +661,9 @@ export default {
         data: params,
         success: (res)=>{
           console.log('消息推送成功', res)
-          // this.myNewsList = this.getChatData.get(this.roomId)
-          // this.textMsg = ''
-          // this.scrollToBottom()
+          this.myNewsList = this.getChatData.get(this.roomId)
+          this.textMsg = ''
+          this.scrollToBottom()
         },
         fail: (err)=>{
           console.log('err',err)

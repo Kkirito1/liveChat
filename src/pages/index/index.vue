@@ -6,8 +6,10 @@
       <view class="input-content">
         <input type="text" class="nickname" placeholder="请输入昵称" v-model="nickname" />
         <input type="text" class="customer-id" placeholder="请输入用户ID" v-model="customerId" />
+        <input type="text" class="customer-id" placeholder="请输入房间号" v-model="roomId" />
       </view>
-      <button @click="toLive">进入直播间</button>
+      <button @click="toLive(1)">创建直播间</button>
+      <button @click="toLive(2)">进入直播间</button>
     </view>
   </view>
 </template>
@@ -18,12 +20,13 @@ export default {
     return {
       title: 'Hello',
       nickname: '',
-      customerId: ''
+      customerId: '',
+      roomId:''
     }
   },
   onLoad() {},
   methods: {
-    toLive() {
+    toLive(id) {
       if(!this.nickname) {
         return uni.showToast({
         title: '请先输入昵称',
@@ -39,9 +42,16 @@ export default {
         });
       }
       // "/pages/instant-messaging/instant-messaging?transactionType='1'&status='3'&tradeMoney='123'&tradeNum=''000123456"
-      uni.navigateTo({
-        url: "/pages/instant-messaging/instant-messaging?transactionType='1'&status='3'&tradeMoney="+ this.nickname + "&tradeMoney="+ this.customerId
-      })
+      if(id==1){
+        uni.navigateTo({
+          url: "/pages/instant-messaging/instant-messaging?transactionType='1'&status='3'&tradeMoney="+ this.nickname + "&tradeMoney="+ this.customerId
+        })
+      }else{
+        uni.navigateTo({
+          url: `/pages/user-message/user-message?roomId=${this.roomId}&customerId=${this.customerId}`
+        })
+      }
+      
     }
   },
 }
